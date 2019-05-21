@@ -4,9 +4,11 @@ use MatrixAgentsAPI\Security\JWT\Token;
 use MatrixAgentsAPI\Utilities\EventLogger;
 use MatrixAgentsAPI\Security\Encryption\OpenSSLEncryption;
 use MatrixAgentsAPI\Security\Models\MatrixRegistrationResponseModel;
-use MatrixAgentsAPI\DatabaseModel\UserTableTransactions;
+
 use MatrixAgentsAPI\DatabaseModel\DBConstants;
 use MatrixAgentsAPI\Modules\Login\Model\LoginResponseModel;
+use MatrixAgentsAPI\DatabaseModel\ForgotPasswordTableTransactions;
+use MatrixAgentsAPI\DatabaseModel\UserTableTransactions;
 
 class Authenticator
 {
@@ -69,7 +71,7 @@ class Authenticator
             }
         } catch (Exception $e) {
 
-            $registrationResponse->setStatus('FAILURE')
+            $registrationResponse->setStatus($this->constStatusFlags['Failure'])
                 ->setDisplayMessage($displayMessage)
                 ->setErrorMessage(var_export($e, true))
                 ->setResponseCode($this->constResponseCode['RegistrationFailure']);
@@ -79,6 +81,7 @@ class Authenticator
                 ->log('Caught exception: ' . var_export($e, true) . "\n");
         } finally {
             $this->logger->debug(' executing finally block in register() method', self::MASK_LOG_TRUE);
+
             return $this->getEncryptedResponse($registrationResponse->getJsonString());
         }
     }
@@ -160,6 +163,8 @@ class Authenticator
                 $audience = "http://www.techdotmasterpiece.com/products/iRemember/login";
                 $subject = 'user-session-authorization';
 
+                $this->authenticatedUserName = $username;
+
                 $token = Token::getToken($userId, $secretKey, $expiration, $issuer, $audience, $subject);
 
                 $_SESSION['secretKey'] = $secretKey;
@@ -175,7 +180,7 @@ class Authenticator
                     ->log("Login attempt failed for the following credentials, " . PHP_EOL .
                         " username :" . $username . "," . PHP_EOL .
                         " password :" . $password . PHP_EOL .
-                        " The request that was submitted is as follows >>> " . PFP_EOL .
+                        " The request that was submitted is as follows >>> " . PHP_EOL .
                         $request_body);
                 //if validation fails dont let the user to authenticate
                 $loginResponseToBeSent = "{\"isAuthenticated\":\"false\",\"displayMessage\":\""
@@ -193,7 +198,8 @@ class Authenticator
                 ->errorEvent()
                 ->log(PHP_EOL);
         } finally {
-            return $this->opensslEncryption->CryptoJSAesEncrypt($_SESSION['response_encryption_pass_phrase'], $loginResponseToBeSent);
+            return $this->getEncryptedResponse($loginResponseToBeSent);
+            //return $this->opensslEncryption->CryptoJSAesEncrypt($_SESSION['response_encryption_pass_phrase'], $loginResponseToBeSent);
         }
     }
 
@@ -208,7 +214,7 @@ class Authenticator
             if ($bearerToken) {
                 if (Token::validate($bearerToken, $secretKey)) {
                     unset($_SESSION['secretKey']);
-                    return "SUCCESS";
+                    return $this->constStatusFlags['Success'];
                 } else {
                     //get the request body to extract the parameters posted to the request
                     $request_body = file_get_contents('php://input');
@@ -216,7 +222,7 @@ class Authenticator
                         ->securityEvent()
                         ->log("Alert : Possible Fradulant attempt :: Log Out attempt failed for the request, " . PHP_EOL . $request_body);
 
-                    return "FAILURE";
+                    return $this->constStatusFlags['Failure'];
                 }
             }
         } else {
@@ -228,9 +234,88 @@ class Authenticator
                 ->log("Alert : Invalid Scenario :: Session values namely 'secretKey' is not set" . PHP_EOL .
                     " This is not supposed to happen :: Log Out attempt failed for the request, " . PHP_EOL . $request_body);
 
-            return "FAILURE";
+            return $this->constStatusFlags['Failure'];
         }
         exit;
+    }
+
+    public function sendVerificationEmail(): string
+    {
+        $sendVerificationEmailResponseToBeSent = new MatrixRegistrationResponseModel();
+        try {
+            $this->logger->debug('into sendVerificationEmail ', self::MASK_LOG_TRUE);
+
+            //initializing default  response to aunthentication failure scenario
+            $sendVerificationEmailResponseToBeSent->setStatus($this->constStatusFlags['Failure'])
+                ->setDisplayMessage($this->constDisplayMessages['TemporaryServiceDownMessage'])
+                ->setResponseCode($this->constResponseCode['RegistrationFailure']);
+
+
+            //initialize session
+            $this->initializeSession();
+
+            $request_body = $this->getRequestBody();
+
+            $this->logger->debug(PHP_EOL . 'app debug mode set to >>>' . $_SESSION['debug_mode'], self::MASK_LOG_TRUE);
+            $this->logger->debug('into sendVerificationEmail method ', self::MASK_LOG_TRUE);
+            $this->logger->debug('sendVerificationEmail payload >>> ' . $request_body, self::MASK_LOG_TRUE);
+
+            //Following decryption procedure shall be used for openssl mechanism for php7.2 or higher        
+            //$reqData = $this->getRequest();
+            $this->logger->debug('>>> $_SESSION[\'request_decryption_pass_phrase\']>>> ' . $_SESSION['request_decryption_pass_phrase'], self::MASK_LOG_TRUE);
+            $this->logger->debug('>>> $request_body >>> ' . $request_body, self::MASK_LOG_TRUE);
+
+            $decryptedRequest = $this->opensslEncryption->CryptoJSAesDecrypt($_SESSION['request_decryption_pass_phrase'], $request_body);
+            // $this->logger->debug('decryptedRequest is >>> ' . var_dump($decryptedRequest), self::MASK_LOG_TRUE);
+            if (empty($decryptedRequest)) {
+
+                $this->logger
+                    ->errorEvent()
+                    ->log('Invalid request. No request body information found');
+                return $sendVerificationEmailResponseToBeSent;
+            }
+
+            $username = $decryptedRequest->username;
+            //END :: gather data relevant to the login attempt         
+
+            $this->logger->debug('>>> checking for allowed origins ', self::MASK_LOG_TRUE);
+
+            //validate the data against the information stored in the data base 
+            $usrTabl = new UserTableTransactions();
+            $usrTabl->setIRememberProperties($this->iRememberProperties);
+            $sendVerificationEmailResponseToBeSent = $usrTabl->isUser($username);
+
+            $this->logger->debug('Authenticator >>> sendVerificationEmail >>> $sendVerificationEmailResponseToBeSent is >>>' . var_export($sendVerificationEmailResponseToBeSent, true), self::MASK_LOG_TRUE);
+
+            if ($sendVerificationEmailResponseToBeSent->getStatus() == $this->constStatusFlags['Success']) {
+                $this->logger->debug('Authenticator >>> sendVerificationEmail >>> $sendVerificationEmailResponseToBeSent status is success', self::MASK_LOG_TRUE);
+                $forgotPasswordTbl = new ForgotPasswordTableTransactions();
+                $forgotPasswordTbl->setIRememberProperties($this->iRememberProperties);
+
+                $addForgotPasswordEntryResponse =  $forgotPasswordTbl->addForgotPasswordEntry($username);
+                $this->logger
+                    ->debug('Authenticator >>> sendVerificationEmail >>> $addForgotPasswordEntryResponse is >>> ' . var_export($addForgotPasswordEntryResponse, true), self::MASK_LOG_TRUE);
+
+                return $sendVerificationEmailResponseToBeSent;
+            } else {
+                $this->logger->debug('Authenticator >>> sendVerificationEmail >>> $sendVerificationEmailResponseToBeSent status is failure', self::MASK_LOG_TRUE);
+                $sendVerificationEmailResponseToBeSent->setDisplayMessage('Mail Will be sent if the email has already been registered')->setErrorMessage('')->setResponseCode('');
+                return $sendVerificationEmailResponseToBeSent;
+            }
+        } catch (Exception $e) {
+            $this->logger
+                ->errorEvent()
+                ->log('Caught exception: ');
+            $this->logger
+                ->errorEvent()
+                ->log(var_export($e, true));
+            $this->logger
+                ->errorEvent()
+                ->log(PHP_EOL);
+        } finally {
+            $this->logger->debug('out of sendVerificationEmail ', self::MASK_LOG_TRUE);
+            return $this->getEncryptedResponse($sendVerificationEmailResponseToBeSent->getJsonString());
+        }
     }
 
     private function initializeSession()
@@ -243,7 +328,7 @@ class Authenticator
             $PROCESS_SECTIONS = true;
 
             //get app properties
-            $this->iRememberProperties = parse_ini_file(realpath('../i-remember-properties.ini'), $PROCESS_SECTIONS);
+            $this->iRememberProperties = parse_ini_file(realpath('../../i-remember-properties.ini'), $PROCESS_SECTIONS);
 
             $matrixAppFlags = $this->iRememberProperties['matrix-app-flags'];
             $_SESSION['debug_mode'] = $matrixAppFlags['debug_mode'];
@@ -433,7 +518,7 @@ class Authenticator
     /** 
      * Get hearder Authorization
      * */
-    private function getAuthorizationHeader()
+    public function getAuthorizationHeader()
     {
         try {
             $this->logger->debug(' into method Authenticator::getAuthorizationHeader()', self::MASK_LOG_TRUE);
@@ -463,7 +548,7 @@ class Authenticator
     /**
      * get access token from header
      * */
-    private function getBearerToken()
+    public function getBearerToken()
     {
         try {
             $this->logger->debug(' completed method Authenticator::getBearerToken()', self::MASK_LOG_TRUE);

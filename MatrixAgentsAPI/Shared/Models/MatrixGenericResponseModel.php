@@ -4,10 +4,10 @@ use MatrixAgentsAPI\Shared\Models\Interfaces\MatrixGenericResponseModelInterface
 
 class MatrixGenericResponseModel implements MatrixGenericResponseModelInterface
 {
-    private $status; // SUCCESS or FAILURE
-    private $errorMessage;
-    private $displayMessage;
-    private $responseCode;
+    public $status; // SUCCESS or FAILURE
+    public $errorMessage;
+    public $displayMessage;
+    public $responseCode;
 
     public function getResponseCode(): string
     {
