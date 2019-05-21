@@ -21,19 +21,42 @@ class DBConstants
     //  error code example :: "LoginUserNameNotExist" => "1904170020002", ---- 190417->yymmdd -- 002 -> segment 2 (Login) --- 0002  second response code in the module
     const ResponseCode = array(
         "RegistrationSuccess" => "1904170010001",
-        "RegistrationFailure" => "1904170010002",
-        "RegistrationNameAlreadyExists" => "1904170010003",
-        "RegistrationPasswordComplexityNotMet" => "1904170010004",
+        "RegistrationFailure" => "-1904170010002",
+        "RegistrationNameAlreadyExists" => "-1904170010003",
+        "RegistrationPasswordComplexityNotMet" => "-1904170010004",
         "LoginSuccess" => "1904170020001",
-        "LoginIncorrectUserNamePassword" => "1904170020002",
-        "LoginFailure" => "1904170020003",
-        "ForgotPassword" => "1904170020005",
+        "LoginIncorrectUserNamePassword" => "-1904170020002",
+        "LoginFailure" => "-1904170020003",
+        "ForgotPassword" => "-1904170020005",
+
+        "SendVerificationEmailSuccess" => "1904250030001",
+        "SendVerificationEmailFailure" => "-1904250030002",
+
+        "NotesCategoryListSuccess" => "1905160050001",
+        "NotesCategoryListFailure" => "1905160050002",
+        "NotesListSuccess" => "1905160050003",
+        "NotesListFailure" => "1905160050004",
+        'SoftDeleteNotesSuccess' => "1905160050005",
+        'SoftDeleteNotesFailure' => "1905160050006",
+        'HardDeleteNotesSuccess' => "1905200050007",
+        'HardDeleteNotesFailure' => "1905200050008",
+
+        "NewNoteCreatedSuccess" => "1905020040001",
+        "InvalidInputData" => "-1905020040002",
+        "SilentFailure" => "-1905030040003",
+
+        "InvalidRequest" => "-1904290990001",
+        "RandomError" => "-1904290990002",
+        "CodeError" => "-1904290990003",
     );
 
     const DisplayMessages = array(
         "TemporaryServiceDownMessage" => "The service is temporarily unavailable. Please contact the support team to seek help in this regard",
         "RegistrationUserNameExists" => "User name already exists. Try forgot password link to recover your password",
-        "LoginIncorrectUserNamePassword" => "Incorrect Username or Password"
+        "LoginIncorrectUserNamePassword" => "Incorrect Username or Password",
+        "InvalidRequest" => "Invalid request. No request body information found",
+        "InvalidInputData" => "Invalid Input Data",
+        "SilentFailure" => "Code Execution did not complete. Possibly due to syntax or structural errors"
     );
 
     const StatusFlags = array(
