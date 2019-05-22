@@ -357,7 +357,6 @@ class IRemNotesTableTransactions
             }
 
             // new row details
-
             $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> request data is >>> ' . var_export($noteData, true),  self::MASK_LOG_TRUE);
 
             $noteData = (array)$noteData;
@@ -448,6 +447,7 @@ class IRemNotesTableTransactions
             } else {
                 $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> check 2.3', self::MASK_LOG_TRUE);
             }
+
             $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> check 3', self::MASK_LOG_TRUE);
             $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>>  $isFormDataValid >>> ' .
                 json_encode($isFormDataValid),  self::MASK_LOG_TRUE);
@@ -531,10 +531,11 @@ class IRemNotesTableTransactions
                         if (mysqli_num_rows($existingCategoryRecordIfAny) == 0) {
                             $irem_nc_created = date('Y-m-d h:m:s');
                             $irem_nc_lastupdated = date('Y-m-d h:m:s');
+                            $irem_nc_groupname = 'Custom';
 
                             // $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> new category save triggering command >>> ' . PHP_EOL . "INSERT INTO irem_notes_categories (irem_nc_categoryid,irem_nc_categoryname,irem_nc_ismarkedfordeletion,irem_nc_iconname,irem_nc_created,irem_nc_lastupdated) VALUES ('$categoryId','$categoryName','false','$iconName','$irem_nc_created','$irem_nc_lastupdated')", self::MASK_LOG_TRUE);
 
-                            mysqli_query($conn, "INSERT INTO irem_notes_categories (irem_nc_categoryid,irem_nc_categoryname,irem_nc_ismarkedfordeletion,irem_nc_iconname,irem_nc_created,irem_nc_lastupdated,irem_nc_userid) VALUES ('$categoryId','$categoryName','false','$iconName','$irem_nc_created','$irem_nc_lastupdated','$loggedInUserId')");
+                            mysqli_query($conn, "INSERT INTO irem_notes_categories (irem_nc_categoryid,irem_nc_categoryname,irem_nc_ismarkedfordeletion,irem_nc_iconname,irem_nc_created,irem_nc_lastupdated,irem_nc_userid,irem_nc_groupname) VALUES ('$categoryId','$categoryName','false','$iconName','$irem_nc_created','$irem_nc_lastupdated','$loggedInUserId','$irem_nc_groupname')");
                         } else {
                             $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> found a match so wont create new category id >>> ' . $categoryId, self::MASK_LOG_TRUE);
                             $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> $existingCategoryRecordIfAny >>> ' . var_export($existingCategoryRecordIfAny, true), self::MASK_LOG_TRUE);
@@ -576,7 +577,6 @@ class IRemNotesTableTransactions
                     ->setErrorMessage($this->constDisplayMessages['InvalidInputData'])
                     ->setResponseCode($this->constResponseCode['InvalidInputData']);
             }
-
 
             if ($updateNoteResponse->getStatus() === $this->constStatusFlags['Success']) {
                 $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> constructing response',  self::MASK_LOG_TRUE);
