@@ -135,18 +135,8 @@ class IRemNotesTableTransactions
     {
         $getNotesCategoryListResponse = null;
         $methodExectionComplete = false;
-        $dbConfig = null;
-        $serverName = null;
-        $dbName = "techdotm_iremakoz";
-        $dbUser = "techdotm_iRemNRMLSub";
-        $dbPassword = "whsGiF04brLNV10f";
         $conn = null;
-        $bearerToken = null;
-        $token = null;
-        $payloadInToken = null;
-        $payloadJSON = null;
         $loggedInUserId = null;
-        $dbConfig = null;
 
         $getNotesCategoryListResponse = new GenericTableTransactionResponseModel();
         $categoryDataResponse = array("categoryTagData" => array());
@@ -162,23 +152,9 @@ class IRemNotesTableTransactions
 
             $this->logger->debug('IRemNotesTableTransactions >>> getNotesCategoryList >>> initalized response ',  self::MASK_LOG_TRUE);
             if (empty($notesListRequestData)) {
-                $bearerToken = $this->getBearerToken();
-                $this->logger->debug('IRemNotesTableTransactions >>> getNotesCategoryList >>> bearer token >>> ' . $bearerToken,  self::MASK_LOG_TRUE);
+                $loggedInUserId = $this->getLoggedInUserName();
+                $conn = $this->getDBConnection();
 
-                $token = new Token();
-                $payloadInToken = $token->getPayload($bearerToken);
-                $this->logger->debug('IRemNotesTableTransactions >>> getNotesCategoryList >>> payloadInToken >>> ' . $payloadInToken,  self::MASK_LOG_TRUE);
-
-                $payloadJSON = json_decode($payloadInToken, true);
-                $this->logger->debug('IRemNotesTableTransactions >>> getNotesCategoryList >>> payloadJSON >>> ' . var_export($payloadJSON, true),  self::MASK_LOG_TRUE);
-
-                $loggedInUserId = $payloadJSON['user_id'];
-                $this->logger->debug('IRemNotesTableTransactions >>> getNotesCategoryList >>> userId >>> ' . $loggedInUserId,  self::MASK_LOG_TRUE);
-
-                $dbConfig = $this->getIRememberDBProperties();
-                $serverName = $dbConfig["iRemember_servername"];
-
-                $conn = mysqli_connect($serverName, $dbUser, $dbPassword, $dbName);
                 // Check connection
                 if (mysqli_connect_errno()) {
                     echo "Failed to connect to MySQL: " . mysqli_connect_error();
@@ -269,7 +245,7 @@ class IRemNotesTableTransactions
             $this->logger->debug('IRemNotesTableTransactions >>> softDeleteNotes >>> initalized response ',  self::MASK_LOG_TRUE);
 
             $loggedInUserId = $this->getLoggedInUserName();
-            $conn = $this->getDBConnection();
+            $conn = $this->getDBConnection($hardDeleteFlag);
 
             if (empty($softDeleteNotesRequestData)) {
 
@@ -340,17 +316,8 @@ class IRemNotesTableTransactions
 
         $updateNoteResponse = new GenericTableTransactionResponseModel();
 
-        $bearerToken = null;
-        $token = null;
-        $payloadInToken = null;
-        $payloadJSON = null;
         $loggedInUserId = null;
 
-        $dbConfig = null;
-        $serverName = null;
-        $dbName = "techdotm_iremakoz";
-        $dbUser = "techdotm_iRemNRMLSub";
-        $dbPassword = "whsGiF04brLNV10f";
         $conn = null;
 
         $isNewRecord = false;
@@ -360,7 +327,6 @@ class IRemNotesTableTransactions
         $formData_categoryTags =  null;
         $formData_noteDescription = null;
         $formData_noteId = null;
-        $formData_markedForDeletion = null;
 
         $iremNoteItem = new IRemNoteItem();
 
@@ -382,23 +348,9 @@ class IRemNotesTableTransactions
                 ->setErrorMessage($this->constDisplayMessages['TemporaryServiceDownMessage'])
                 ->setResponseCode($this->constResponseCode["RandomError"]);
 
-            $bearerToken = $this->getBearerToken();
-            $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> bearer token >>> ' . $bearerToken,  self::MASK_LOG_TRUE);
+            $loggedInUserId = $this->getLoggedInUserName();
+            $conn = $this->getDBConnection();
 
-            $token = new Token();
-            $payloadInToken = $token->getPayload($bearerToken);
-            $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> payloadInToken >>> ' . $payloadInToken,  self::MASK_LOG_TRUE);
-
-            $payloadJSON = json_decode($payloadInToken, true);
-            $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> payloadJSON >>> ' . var_export($payloadJSON, true),  self::MASK_LOG_TRUE);
-
-            $loggedInUserId = $payloadJSON['user_id'];
-            $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> userId >>> ' . $loggedInUserId,  self::MASK_LOG_TRUE);
-
-            $dbConfig = $this->getIRememberDBProperties();
-            $serverName = $dbConfig["iRemember_servername"];
-
-            $conn = mysqli_connect($serverName, $dbUser, $dbPassword, $dbName);
             // Check connection
             if (mysqli_connect_errno()) {
                 echo "Failed to connect to MySQL: " . mysqli_connect_error();
@@ -431,7 +383,6 @@ class IRemNotesTableTransactions
             }
 
             $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> check 1', self::MASK_LOG_TRUE);
-            //$this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> sizeof($noteData[categoryTags]) >>> ' . sizeof($noteData['categoryTags']), self::MASK_LOG_TRUE);
 
             if (isset($noteData['categoryTags'])) {
                 for ($categoryTagEntityItr = 0; $categoryTagEntityItr < sizeof($noteData['categoryTags']); $categoryTagEntityItr++) {
@@ -439,11 +390,6 @@ class IRemNotesTableTransactions
 
                     $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> 1.categoryTagItem >>> ' . var_export($categoryTagEntity, true), self::MASK_LOG_TRUE);
                     $categoryTagEntityArr = (array)$categoryTagEntity;
-
-
-                    // $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> check 1 >>> ', self::MASK_LOG_TRUE);
-                    // $iremNoteItemCategory  = new IRemNoteItemCategory();
-                    // $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> check 2 >>> ', self::MASK_LOG_TRUE);
 
                     if (isset($categoryTagEntityArr['markedForDeletion'])) {
                         $markedForDeletion = mysqli_real_escape_string($conn, $categoryTagEntityArr['markedForDeletion']);
@@ -459,14 +405,12 @@ class IRemNotesTableTransactions
                         if ($categoryId === '' || $categoryId === null) {
                             $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> $categoryId not found ', self::MASK_LOG_TRUE);
                             $categoryId = uniqid();
-                            // $noteData['categoryTags'][$categoryTagEntityItr]['categoryId'] = $categoryId;
                             $categoryTagEntityArr['categoryId'] = $categoryId;
                             $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> $categoryId generated ', self::MASK_LOG_TRUE);
                         }
                     } else {
                         $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> $categoryId not found (else)', self::MASK_LOG_TRUE);
                         $categoryId = uniqid();
-                        //$noteData['categoryTags'][$categoryTagEntityItr]['categoryId'] = $categoryId;
                         $categoryTagEntityArr['categoryId'] = $categoryId;
                         $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> $categoryId generated (else)', self::MASK_LOG_TRUE);
                     }
@@ -484,10 +428,6 @@ class IRemNotesTableTransactions
             }
             $formData_noteTitle = $noteData['noteTitle'] ?: null;
             $formData_noteDescription = $noteData['noteDescription'] ?: null;
-
-            // $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> typeof $loggedInUserId >>> ' . gettype($loggedInUserId), self::MASK_LOG_TRUE);
-            // $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> typeof $formData_noteTitle >>> ' . gettype($formData_noteTitle), self::MASK_LOG_TRUE);
-            // $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> typeof $formData_noteDescription >>> ' . gettype($formData_noteDescription), self::MASK_LOG_TRUE);
 
             if (is_string($loggedInUserId) && is_string($formData_noteTitle)  && is_string($formData_noteDescription)) {
                 $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> check 2.0', self::MASK_LOG_TRUE);
@@ -541,8 +481,6 @@ class IRemNotesTableTransactions
 
                 $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> query is >>> ' . "INSERT INTO irem_notes (irem_notes_id,irem_notes_title,irem_notes_tags,irem_notes_description,irem_notes_userid,irem_notes_created,irem_notes_lastupdated,irem_notes_ismarkedfordeletion) VALUES ('$irem_notes_id','$irem_notes_title','$irem_notes_tags','$irem_notes_description','$irem_notes_userid','$irem_notes_created','$irem_notes_lastupdated','$markedForDeletion')",  self::MASK_LOG_TRUE);
 
-                // mysqli_query($conn, "INSERT INTO irem_forgot_password (irem_fp_index, irem_fp_username, irem_fp_accesskey,irem_fp_date)
-                // VALUES ('$irem_fp_index','$irem_fp_username','$irem_fp_accesskey','$irem_fp_date')");
                 if ($isNewRecord === true) {
                     $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> creating new record note >>> ' . $irem_notes_id,  self::MASK_LOG_TRUE);
                     mysqli_query($conn, "INSERT INTO irem_notes (irem_notes_id,irem_notes_title,irem_notes_tags,irem_notes_description,irem_notes_userid,irem_notes_created,irem_notes_lastupdated,irem_notes_ismarkedfordeletion) VALUES ('$irem_notes_id','$irem_notes_title','$irem_notes_tags','$irem_notes_description','$irem_notes_userid','$irem_notes_created','$irem_notes_lastupdated','$markedForDeletion')");
@@ -557,7 +495,6 @@ class IRemNotesTableTransactions
                     $categoryTagEntityArr = $noteData_Catagories[$categoryTagEntityItr];
 
                     $this->logger->debug('IRemNotesTableTransactions >>> updateNote >>> 2.categoryTagItem >>> ' . var_export($categoryTagEntity, true), self::MASK_LOG_TRUE);
-                    // $categoryTagEntityArr = (array)$categoryTagEntity;
 
                     $categoryName = '';
                     if (isset($categoryTagEntityArr['categoryName'])) {
@@ -786,19 +723,22 @@ class IRemNotesTableTransactions
         }
     }
 
-    private function getDBConnection()
+    private function getDBConnection($isDeleteCapableUser = false)
     {
         $dbConfig = null;
         $serverName = null;
-        $dbName = "techdotm_iremakoz";
-        $dbUser = "techdotm_iRemNRMLSub";
-        $dbPassword = "whsGiF04brLNV10f";
+        $dbName = null;
+        $dbUser = null;
+        $dbPassword = null;
         try {
 
             $this->logger->debug('UserTableTransactions >>> into of getDBConnection method ', self::MASK_LOG_TRUE);
 
             $dbConfig = $this->getIRememberDBProperties();
             $serverName = $dbConfig["iRemember_servername"];
+            $dbName = $dbConfig["iRemember_db"];
+            $dbUser = $isDeleteCapableUser ? $dbConfig["iRemember_del_only_user"] : $dbConfig["iRemember_nrml_user"];
+            $dbPassword = $isDeleteCapableUser ? $dbConfig["iRemember_del_only_password"] : $dbConfig["iRemember_nrml_user_password"];
 
             $conn = mysqli_connect($serverName, $dbUser, $dbPassword, $dbName);
             // Check connection
