@@ -1,5 +1,6 @@
 <?php namespace MatrixAgentsAPI\Security\JWT\Helper;
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 /**
  * A class that converts Base64 strings to Base64Url strings and vice versa
  * for JWT Tokens

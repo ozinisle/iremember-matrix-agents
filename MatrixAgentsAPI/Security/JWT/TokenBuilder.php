@@ -1,5 +1,9 @@
 <?php namespace MatrixAgentsAPI\Security\JWT;
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+
 use MatrixAgentsAPI\Security\JWT\Exception\TokenBuilderException;
 use MatrixAgentsAPI\Security\JWT\Helper\Signature;
 use MatrixAgentsAPI\Security\JWT\Helper\TokenEncodeDecode;

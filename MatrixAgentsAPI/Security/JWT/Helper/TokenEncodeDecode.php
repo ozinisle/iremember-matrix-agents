@@ -1,5 +1,9 @@
 <?php namespace MatrixAgentsAPI\Security\JWT\Helper;
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+
 use MatrixAgentsAPI\Security\JWT\Helper\Base64;
 use MatrixAgentsAPI\Security\JWT\Helper\Base64UrlConverter;
 

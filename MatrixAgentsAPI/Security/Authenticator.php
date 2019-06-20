@@ -1,5 +1,9 @@
 <?php namespace MatrixAgentsAPI\Security;
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+
 use MatrixAgentsAPI\Security\JWT\Token;
 use MatrixAgentsAPI\Utilities\EventLogger;
 use MatrixAgentsAPI\Security\Encryption\OpenSSLEncryption;
@@ -169,10 +173,23 @@ class Authenticator
 
                 $_SESSION['secretKey'] = $secretKey;
 
-                $loginResponseToBeSent = "{\"isAuthenticated\":\"true\",\"token\":\"" . $token .
-                    "\",\"authenticatedUserName\":\"" . $this->authenticatedUserName . "\"}"; //,\"referer\":\"" . $referer . "\"}";
-
+                
                 $this->logger->debug('>>> valid login detected >>> ' . $loginResponseToBeSent, self::MASK_LOG_TRUE);
+
+                //$arrayString = print_r($loginResponse->getLogs(), true);
+                //$arrayStringInOneLine = str_replace("\n", "", $arrayString);
+
+                $loginResponse->setIsAuthenticated(true);
+                $loginResponse->setToken($token);
+                $loginResponse->setAuthenticatedUserName($this->authenticatedUserName);
+                // $loginResponseToBeSent = "
+                //     {
+                //         \"isAuthenticated\":\"true\",
+                //         \"token\":\"".$token."\",
+                //         \"authenticatedUserName\":\"".$this->authenticatedUserName."\",
+                //         \"logs\":\"".$arrayStringInOneLine."\"
+                //     }
+                // "; //,\"referer\":\"" . $referer . "\"}";
             } else {
                 $this->logger
                     ->securityEvent()
@@ -182,13 +199,23 @@ class Authenticator
                         " password :" . $password . PHP_EOL .
                         " The request that was submitted is as follows >>> " . PHP_EOL .
                         $request_body);
+
+                        // $arrayString = print_r($loginResponse->getLogs(), true);
+                        // $arrayStringInOneLine = str_replace("\n", "", $arrayString);
+
                 //if validation fails dont let the user to authenticate
-                $loginResponseToBeSent = "{\"isAuthenticated\":\"false\",\"displayMessage\":\""
-                    . $this->constDisplayMessages['LoginIncorrectUserNamePassword'] . "\"}";
+                // $loginResponseToBeSent = "{
+                //     \"isAuthenticated\":\"false\",
+                //     \"displayMessage\":\"". $this->constDisplayMessages['LoginIncorrectUserNamePassword'] . "\",
+                //     \"logs\":\"".$arrayStringInOneLine."\"
+                // }";
+                $loginResponse->setIsAuthenticated(false);
+                $loginResponse->setDisplayMessage($this->constDisplayMessages['LoginIncorrectUserNamePassword'] );
+                
+                
             }
         } catch (Exception $e) {
-            $loginResponseToBeSent = "{\"isAuthenticated\":\"false\"}";
-            echo var_export($e, true);
+                        
             $this->logger
                 ->errorEvent()
                 ->log('Caught exception: ');
@@ -198,8 +225,21 @@ class Authenticator
             $this->logger
                 ->errorEvent()
                 ->log(PHP_EOL);
+
+               // $arrayString = print_r($loginResponse->getLogs(), true);
+                //$arrayStringInOneLine = str_replace("\n", "", $arrayString);
+
+                // $loginResponseToBeSent = "{
+                //     \"isAuthenticated\":\"false\",
+                //     \"logs\":\"".$arrayStringInOneLine."\"
+                // }";
+                $loginResponse->setIsAuthenticated(false);
+
         } finally {
-            return $this->getEncryptedResponse($loginResponseToBeSent);
+            
+            $this->logger->debug('>>> login reponse >>> ' . $loginResponse->getJsonString(), self::MASK_LOG_TRUE);
+
+            return $this->getEncryptedResponse($loginResponse->getJsonString());
             //return $this->opensslEncryption->CryptoJSAesEncrypt($_SESSION['response_encryption_pass_phrase'], $loginResponseToBeSent);
         }
     }

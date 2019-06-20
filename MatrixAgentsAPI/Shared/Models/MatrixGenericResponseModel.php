@@ -1,5 +1,9 @@
 <?php namespace MatrixAgentsAPI\Shared\Models;
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+
 use MatrixAgentsAPI\Shared\Models\Interfaces\MatrixGenericResponseModelInterface;
 
 class MatrixGenericResponseModel implements MatrixGenericResponseModelInterface

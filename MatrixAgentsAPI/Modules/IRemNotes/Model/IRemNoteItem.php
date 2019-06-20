@@ -1,5 +1,6 @@
 <?php namespace MatrixAgentsAPI\Modules\IRemNotes\Model;
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 use MatrixAgentsAPI\Modules\IRemNotes\Interfaces\IRemNoteItemInterface;
 
 class IRemNoteItem implements IRemNoteItemInterface

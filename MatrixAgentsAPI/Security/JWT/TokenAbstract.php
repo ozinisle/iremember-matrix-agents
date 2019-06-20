@@ -1,5 +1,9 @@
 <?php namespace MatrixAgentsAPI\Security\JWT;
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+
 /**
  * Abstract Token class that contains some global features for the Token Builder
  * class and the Token Validator class

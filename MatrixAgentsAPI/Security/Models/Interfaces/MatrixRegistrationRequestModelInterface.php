@@ -1,5 +1,9 @@
 <?php namespace MatrixAgentsAPI\Security\Models\Interfaces;
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+
 interface MatrixRegistrationRequestModelInterface
 {
     public function getUsername(): string;

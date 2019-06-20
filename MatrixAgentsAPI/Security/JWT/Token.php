@@ -1,5 +1,9 @@
 <?php namespace MatrixAgentsAPI\Security\JWT;
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+
 /**
  * A simple Package for creating JSON Web Tokens that uses HMAC SHA256 to sign
  * signatures. Exposes a simple interface to allow you to create a simple token

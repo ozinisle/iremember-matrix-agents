@@ -1,5 +1,6 @@
 <?php namespace MatrixAgentsAPI\Security\JWT\Helper;
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 /**
  * A very simple class that provides an interface to the php hash_hmac method to
  * hash strings

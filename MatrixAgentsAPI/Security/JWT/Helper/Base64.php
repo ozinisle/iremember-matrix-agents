@@ -1,5 +1,6 @@
 <?php namespace MatrixAgentsAPI\Security\JWT\Helper;
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 /**
  * Simple class that provides an interface for php Base 64 encoding methods
  *

@@ -1,5 +1,6 @@
 <?php namespace MatrixAgentsAPI\Modules\Login\Model;
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 use MatrixAgentsAPI\Modules\Login\Interfaces\LoginUserRecordInterface;
 
 class LoginUserRecord implements LoginUserRecordInterface

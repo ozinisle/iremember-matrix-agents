@@ -1,5 +1,6 @@
 <?php namespace MatrixAgentsAPI\Security\Encryption;
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 use MatrixAgentsAPI\Utilities\EventLogger;
 
 /**

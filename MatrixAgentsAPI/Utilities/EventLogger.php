@@ -1,6 +1,10 @@
 <?php
 namespace MatrixAgentsAPI\Utilities;
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+
 use phpDocumentor\Reflection\Types\Boolean;
 
 
@@ -13,6 +17,8 @@ class EventLogger
     private $warningEvent = false;
 
     private $appLoggerConfig = null;
+    private $sendLogsInResponse= false;
+    private $logs=array();
 
     private function getEventLogger() : EventLogger
     {
@@ -21,6 +27,11 @@ class EventLogger
 
     public function log(string $logText)
     {
+        //store logs to be sent in response for debugging purposes
+        if($this->sendLogsInResponse){
+            array_push($this->logs,$logText);
+        }
+
         //write code to log the event
         //in my case this outputs the logs to file:///D:/xampp/apache/logs/error.log, which can be opened on the browser
         file_put_contents('php://stderr', $logText);
@@ -37,6 +48,14 @@ class EventLogger
             $this->getEventLogger()::debugEvent();
             $this->getEventLogger()::log($logText . PHP_EOL);
         }
+    }
+
+    public function setSendLogsInResponse(bool $sendLogsInResponse) {
+        $this->sendLogsInResponse=$sendLogsInResponse;
+    }
+
+    public function getLogs() {
+        return $this->logs;
     }
 
     public function getAppLoggerConfig()

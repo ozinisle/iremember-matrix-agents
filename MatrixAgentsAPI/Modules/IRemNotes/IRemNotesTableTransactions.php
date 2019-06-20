@@ -1,5 +1,6 @@
 <?php namespace MatrixAgentsAPI\Modules\IRemNotes;
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 use MatrixAgentsAPI\Utilities\EventLogger;
 use MatrixAgentsAPI\DatabaseModel\DBConstants;
 use MatrixAgentsAPI\Security\JWT\Token;

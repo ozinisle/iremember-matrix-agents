@@ -1,5 +1,6 @@
 <?php namespace MatrixAgentsAPI\Modules\IRemNotes\Interfaces;
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 use MatrixAgentsAPI\Shared\Models\Interfaces\GenericClassMethodsInterface;
 
 interface IRemNoteItemCategoryInterface extends GenericClassMethodsInterface

@@ -83,6 +83,7 @@ class UserTableTransactions
     {
         $loginResponse = new LoginResponseModel();
         try {
+            $this->logger->setSendLogsInResponse(true);
             $this->logger->debug('UserTableTransactions >>> into of getUser method', self::MASK_LOG_TRUE);
 
             $dbConfig = $this->getIRememberDBProperties();
@@ -173,6 +174,7 @@ class UserTableTransactions
         } finally {
             // $this->logger->debug('Authenticator >>> login >>> loginResponse is' . var_export($loginResponse, true), self::MASK_LOG_TRUE);
             $this->logger->debug('UserTableTransactions >>> out of getUser method ', self::MASK_LOG_TRUE);
+            $loginResponse->setLogs($this->logger->getLogs());
             return $loginResponse;
         }
     }

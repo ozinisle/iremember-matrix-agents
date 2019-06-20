@@ -1,5 +1,6 @@
 <?php namespace MatrixAgentsAPI\Security\JWT\Helper;
-
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 use Carbon\Carbon;
 use MatrixAgentsAPI\Security\JWT\Exception\TokenDateException;
 use Exception;
