@@ -188,6 +188,7 @@ class Authenticator
             }
         } catch (Exception $e) {
             $loginResponseToBeSent = "{\"isAuthenticated\":\"false\"}";
+            echo var_export($e, true);
             $this->logger
                 ->errorEvent()
                 ->log('Caught exception: ');

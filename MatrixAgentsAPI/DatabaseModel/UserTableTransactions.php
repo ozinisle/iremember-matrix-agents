@@ -1,5 +1,8 @@
 <?php namespace MatrixAgentsAPI\DatabaseModel;
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 use MatrixAgentsAPI\Utilities\EventLogger;
 use MatrixAgentsAPI\Security\Models\MatrixRegistrationResponseModel;
 use MatrixAgentsAPI\DatabaseModel\DBConstants;
@@ -16,6 +19,7 @@ class UserTableTransactions
     private $password;
     private $serverName;
     private $dbName;
+    private $port;
 
     private $constStatusFlags = DBConstants::StatusFlags;
     private $constResponseCode = DBConstants::ResponseCode;
@@ -52,6 +56,7 @@ class UserTableTransactions
             $iremProps = $this->getIRememberProperties();
             $dbConfig = $iremProps['database-configuration'];
             $this->serverName = $dbConfig['iRemember_servername'];
+            $this->port = $dbConfig['iRemember_server_port'];
             $this->dbName = $dbConfig['iRemember_db'];
             $this->userName = $dbConfig['iRemember_nrml_user'];
             $this->password = $dbConfig['iRemember_nrml_user_password'];
@@ -64,8 +69,6 @@ class UserTableTransactions
             return $dbConfig;
         }
     }
-
-
 
     private function disConnect()
     {
@@ -85,11 +88,16 @@ class UserTableTransactions
             $dbConfig = $this->getIRememberDBProperties();
 
             $serverName = $dbConfig["iRemember_servername"];
-            $dbName = "techdotm_iremakoz";
-            $dbUser = "techdotm_iRemNRMLSub";
-            $dbPassword = "whsGiF04brLNV10f";
+            $port = $dbConfig["iRemember_server_port"];
+            $dbName = $dbConfig["iRemember_db"];
+            $dbUser = $dbConfig["iRemember_nrml_user"];
+            $dbPassword = $dbConfig['iRemember_nrml_user_password'];;
 
+            $this->logger->debug('UserTableTransactions >>> getUser >>> before creating connection', self::MASK_LOG_TRUE);
+            
             $conn = mysqli_connect($serverName, $dbUser, $dbPassword, $dbName);
+
+            $this->logger->debug('UserTableTransactions >>> getUser >>> after creating connection', self::MASK_LOG_TRUE);
             // Check connection
             if (mysqli_connect_errno()) {
                 echo "Failed to connect to MySQL: " . mysqli_connect_error();
@@ -178,9 +186,10 @@ class UserTableTransactions
             $dbConfig = $this->getIRememberDBProperties();
 
             $serverName = $dbConfig["iRemember_servername"];
-            $dbName = "techdotm_iremakoz";
-            $dbUser = "techdotm_iRemNRMLSub";
-            $dbPassword = "whsGiF04brLNV10f";
+            $port = $dbConfig["iRemember_server_port"];
+            $dbName = $dbConfig["iRemember_db"]; //"techdotm_iremakoz";
+            $dbUser = $dbConfig["iRemember_nrml_user"]; //"techdotm_iRemNRMLSub";
+            $dbPassword = $dbConfig["iRemember_nrml_user_password"]; //"whsGiF04brLNV10f";
 
             $conn = mysqli_connect($serverName, $dbUser, $dbPassword, $dbName);
             // Check connection
@@ -261,9 +270,10 @@ class UserTableTransactions
             $dbConfig = $this->getIRememberDBProperties();
 
             $serverName = $dbConfig["iRemember_servername"];
-            $dbName = "techdotm_iremakoz";
-            $dbUser = "techdotm_iRemNRMLSub";
-            $dbPassword = "whsGiF04brLNV10f";
+             $port = $dbConfig["iRemember_server_port"];
+            $dbName = $dbConfig["iRemember_db"];
+            $dbUser = $dbConfig["iRemember_nrml_user"];
+            $dbPassword = $dbConfig['iRemember_nrml_user_password'];;
 
             $conn = mysqli_connect($serverName, $dbUser, $dbPassword, $dbName);
             // Check connection

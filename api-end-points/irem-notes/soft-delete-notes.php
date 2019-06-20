@@ -1,7 +1,8 @@
 <?php
-//DEV TEMP
-//NOTE - change the header to production url in production
-include('../../MatrixAgentsAPI/shared/includeHeader.php');
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+include($_SERVER['DOCUMENT_ROOT'].'/products/iremember-matrix-agents/MatrixAgentsAPI/Shared/includeHeader.php');
 
 use MatrixAgentsAPI\Modules\IRemNotes\IRemNotesTransactions;
 

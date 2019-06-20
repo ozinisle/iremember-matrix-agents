@@ -1,5 +1,8 @@
 <?php
-include('../../MatrixAgentsAPI/shared/includeHeader.php');
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+include($_SERVER['DOCUMENT_ROOT'].'/products/iremember-matrix-agents/MatrixAgentsAPI/Shared/includeHeader.php');
 
 use MatrixAgentsAPI\Security\Authenticator as MatrixAuth;
 
@@ -9,9 +12,14 @@ use MatrixAgentsAPI\Security\Authenticator as MatrixAuth;
 // session.cookie_httponly = 1;
 // session.hash_function = 1;
 // session.hash_bits_per_character=6;
+try {
+    session_start();
+    session_regenerate_id();
 
-session_start();
-session_regenerate_id();
-
-$authenticator = new MatrixAuth();
-echo $authenticator->login();
+    $authenticator = new MatrixAuth();
+    
+    echo $authenticator->login();
+}   catch (customException $e)  {
+    //display custom message
+    echo $e->errorMessage();
+}

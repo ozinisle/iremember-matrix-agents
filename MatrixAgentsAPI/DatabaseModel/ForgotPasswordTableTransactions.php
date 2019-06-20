@@ -15,6 +15,7 @@ class ForgotPasswordTableTransactions
     private $userName;
     private $password;
     private $serverName;
+    private $port;
     private $dbName;
 
     private $constStatusFlags = DBConstants::StatusFlags;
@@ -52,6 +53,7 @@ class ForgotPasswordTableTransactions
             $iremProps = $this->getIRememberProperties();
             $dbConfig = $iremProps['database-configuration'];
             $this->serverName = $dbConfig['iRemember_servername'];
+             $this->port = $dbConfig["iRemember_server_port"];
             $this->dbName = $dbConfig['iRemember_db'];
             $this->userName = $dbConfig['iRemember_nrml_user'];
             $this->password = $dbConfig['iRemember_nrml_user_password'];
@@ -85,6 +87,7 @@ class ForgotPasswordTableTransactions
             $dbConfig = $this->getIRememberDBProperties();
 
             $serverName = $dbConfig["iRemember_servername"];
+             $port = $dbConfig["iRemember_server_port"];
             $dbName = "techdotm_iremakoz";
             $dbUser = "techdotm_iRemNRMLSub";
             $dbPassword = "whsGiF04brLNV10f";
@@ -173,6 +176,7 @@ class ForgotPasswordTableTransactions
             $dbConfig = $this->getIRememberDBProperties();
 
             $serverName = $dbConfig["iRemember_servername"];
+             $port = $dbConfig["iRemember_server_port"];
             $dbName = "techdotm_iremakoz";
             $dbUser = "techdotm_iRemNRMLSub";
             $dbPassword = "whsGiF04brLNV10f";
@@ -260,6 +264,7 @@ class ForgotPasswordTableTransactions
             $dbConfig = $this->getIRememberDBProperties();
 
             $serverName = $dbConfig["iRemember_servername"];
+             $port = $dbConfig["iRemember_server_port"];
             $dbName = "techdotm_iremakoz";
             $dbUser = "techdotm_iRemNRMLSub";
             $dbPassword = "whsGiF04brLNV10f";

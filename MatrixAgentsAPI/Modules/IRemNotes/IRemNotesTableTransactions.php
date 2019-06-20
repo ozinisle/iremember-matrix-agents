@@ -160,7 +160,7 @@ class IRemNotesTableTransactions
                     echo "Failed to connect to MySQL: " . mysqli_connect_error();
                 }
 
-                $_categoryDataQueryResult = mysqli_query($conn, "SELECT * FROM irem_notes_categories WHERE irem_nc_userid='$loggedInUserId'");
+                $_categoryDataQueryResult = mysqli_query($conn, "SELECT * FROM irem_notes_categories WHERE irem_nc_userid='$loggedInUserId' OR irem_nc_userid='common'");
 
                 $this->logger->debug('IRemNotesTableTransactions >>> getNotesCategoryList >>> looping through result ',  self::MASK_LOG_TRUE);
                 $_groupFilter = array();
