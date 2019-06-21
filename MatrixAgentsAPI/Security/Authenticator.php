@@ -173,7 +173,7 @@ class Authenticator
 
                 $_SESSION['secretKey'] = $secretKey;
 
-                
+
                 $this->logger->debug('>>> valid login detected >>> ' . $loginResponseToBeSent, self::MASK_LOG_TRUE);
 
                 //$arrayString = print_r($loginResponse->getLogs(), true);
@@ -200,8 +200,8 @@ class Authenticator
                         " The request that was submitted is as follows >>> " . PHP_EOL .
                         $request_body);
 
-                        // $arrayString = print_r($loginResponse->getLogs(), true);
-                        // $arrayStringInOneLine = str_replace("\n", "", $arrayString);
+                // $arrayString = print_r($loginResponse->getLogs(), true);
+                // $arrayStringInOneLine = str_replace("\n", "", $arrayString);
 
                 //if validation fails dont let the user to authenticate
                 // $loginResponseToBeSent = "{
@@ -210,12 +210,10 @@ class Authenticator
                 //     \"logs\":\"".$arrayStringInOneLine."\"
                 // }";
                 $loginResponse->setIsAuthenticated(false);
-                $loginResponse->setDisplayMessage($this->constDisplayMessages['LoginIncorrectUserNamePassword'] );
-                
-                
+                $loginResponse->setDisplayMessage($this->constDisplayMessages['LoginIncorrectUserNamePassword']);
             }
         } catch (Exception $e) {
-                        
+
             $this->logger
                 ->errorEvent()
                 ->log('Caught exception: ');
@@ -226,17 +224,16 @@ class Authenticator
                 ->errorEvent()
                 ->log(PHP_EOL);
 
-               // $arrayString = print_r($loginResponse->getLogs(), true);
-                //$arrayStringInOneLine = str_replace("\n", "", $arrayString);
+            // $arrayString = print_r($loginResponse->getLogs(), true);
+            //$arrayStringInOneLine = str_replace("\n", "", $arrayString);
 
-                // $loginResponseToBeSent = "{
-                //     \"isAuthenticated\":\"false\",
-                //     \"logs\":\"".$arrayStringInOneLine."\"
-                // }";
-                $loginResponse->setIsAuthenticated(false);
-
+            // $loginResponseToBeSent = "{
+            //     \"isAuthenticated\":\"false\",
+            //     \"logs\":\"".$arrayStringInOneLine."\"
+            // }";
+            $loginResponse->setIsAuthenticated(false);
         } finally {
-            
+
             $this->logger->debug('>>> login reponse >>> ' . $loginResponse->getJsonString(), self::MASK_LOG_TRUE);
 
             return $this->getEncryptedResponse($loginResponse->getJsonString());
@@ -369,7 +366,9 @@ class Authenticator
             $PROCESS_SECTIONS = true;
 
             //get app properties
-            $this->iRememberProperties = parse_ini_file(realpath('../../i-remember-properties.ini'), $PROCESS_SECTIONS);
+            // $this->iRememberProperties = parse_ini_file(realpath('../../i-remember-properties.ini'), $PROCESS_SECTIONS);
+            $this->iRememberProperties = parse_ini_file($_SERVER['DOCUMENT_ROOT'] .
+                '/products/iremember-matrix-agents/i-remember-properties.ini', $PROCESS_SECTIONS);
 
             $matrixAppFlags = $this->iRememberProperties['matrix-app-flags'];
             $_SESSION['debug_mode'] = $matrixAppFlags['debug_mode'];
