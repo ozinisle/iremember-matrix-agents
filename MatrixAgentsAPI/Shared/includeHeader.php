@@ -12,6 +12,3 @@ header("Content-Type: application/json");
 include('../../vendor/autoload.php');
 
 //include($_SERVER['DOCUMENT_ROOT'].'/products/iremember-matrix-agents/vendor/autoload.php');
-
-//ini_set('display_errors', 1);
-//error_reporting(E_ALL);
